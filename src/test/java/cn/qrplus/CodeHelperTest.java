@@ -13,7 +13,7 @@ public class CodeHelperTest {
 
     @Test
     public void testGetCode() throws Exception {
-        String code = new CodeHelper().getCode();
-        System.out.println(code);
+//        String code = new CodeHelper().getCode();
+//        System.out.println(code);
     }
 }
