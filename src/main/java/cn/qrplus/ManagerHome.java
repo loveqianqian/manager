@@ -10,5 +10,4 @@ public class ManagerHome {
             fileHelper.parseCode();
         }
     }
-
 }

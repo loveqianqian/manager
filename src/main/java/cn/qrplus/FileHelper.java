@@ -17,8 +17,13 @@ public class FileHelper {
 
     private static String myFileName = "";
 
-    public void getFileName(){
+    public String getFileName(){
         myFileName = "data" + getCurrentTime();
+        File file = new File(getAbsPath()+"/data");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return myFileName;
     }
 
     public String getAdministratorPath() {
@@ -35,9 +40,8 @@ public class FileHelper {
 
     public void parseCode() throws IOException {
         String administratorPath = getAdministratorPath();
-        String absPath = getAbsPath();
         File file = new File(administratorPath + "/data.txt");
-        File resultFile = new File("C:/Users/Administrator/data/" + myFileName);
+        File resultFile = new File(getAbsPath()+"/data/" + myFileName);
         if (file.exists()) {
             if (resultFile.exists()) {
                 resultFile.delete();
@@ -59,11 +63,11 @@ public class FileHelper {
 
     public boolean solveManager() throws Exception {
         String code = new CodeHelper().getMacAddress();
-        String secretPath = getAdministratorPath() + "/jre7/bin/amd64/config.properties";
-        String managePath=getAdministratorPath()+"/data/.manager.k";
+        String secretPath = getAdministratorPath() + "/manager/jre7/lib/amd64/config.properties";
+        String managePath=getAbsPath()+"/data/.manager.k";
         if (isNotExistFile(secretPath)) {
-            saveConfig(code);
-            saveMangeK(true, code,managePath);
+            saveConfig(code,secretPath);
+            saveMangeK(true, string2MD5(code),managePath);
             return true;
         }else{
             BufferedReader reader1 = new BufferedReader(new InputStreamReader(new FileInputStream(new File(secretPath))));
@@ -71,6 +75,10 @@ public class FileHelper {
             BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream(new File(managePath))));
             String msg2 = reader2.readLine();
             String msg3=string2MD5(code);
+            reader2.readLine();
+            String file = reader2.readLine();
+            File resultFile = new File(getAbsPath()+"/data/"+file);
+            resultFile.delete();
             if (msg1.equals(msg2)&&msg1.equals(msg3)) {
                 saveMangeK(true,msg2,managePath);
                 return true;
@@ -93,16 +101,15 @@ public class FileHelper {
     public void saveMangeK(boolean flag, String mac,String path) throws Exception {
         File file = new File(path);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(string2MD5(mac) + "\n" + flag + "\n" + myFileName);
+        writer.write(mac + "\n" + flag + "\n" + myFileName);
         writer.flush();
         writer.close();
     }
 
-    public void saveConfig(String mac) throws Exception {
-        String secretPath = getAdministratorPath() + "/jre7/bin/amd64/config.properties";
-        File file = new File(secretPath);
+    public void saveConfig(String mac,String path) throws Exception {
+        File file = new File(path);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(string2MD5(mac) + getCurrentTime());
+        writer.write(string2MD5(mac));
         writer.flush();
         writer.close();
     }
