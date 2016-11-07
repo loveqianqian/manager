@@ -19,8 +19,11 @@ public class FileHelper {
 
     private static String line = "";
 
+    private static long timeStamp = 0L;
+
     public String getFileName() {
-        myFileName = "data" + getCurrentTime();
+        String currentTime = getCurrentTime();
+        myFileName = "data" + currentTime;
         line = System.getProperty("line.separator");
         File file = new File(getAbsPath() + "/data");
         if (!file.exists()) {
@@ -44,7 +47,7 @@ public class FileHelper {
     public void parseCode() throws IOException {
         String administratorPath = getAdministratorPath();
         File file = new File(administratorPath + "/data.txt");
-        File resultFile = new File(getAbsPath() + "/data/" + myFileName);
+        File resultFile = new File(getAbsPath() + "/data/" + myFileName + ".t");
         if (file.exists()) {
             if (resultFile.exists()) {
                 resultFile.delete();
@@ -62,6 +65,7 @@ public class FileHelper {
             reader.close();
             writer.close();
         }
+        resultFile.setLastModified(timeStamp);
     }
 
     public boolean solveManager() throws Exception {
@@ -142,8 +146,8 @@ public class FileHelper {
 
     public String getCurrentTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        Date date = new Date();
-        return sdf.format(date);
+        timeStamp = System.currentTimeMillis();
+        return sdf.format(timeStamp);
     }
 
 
