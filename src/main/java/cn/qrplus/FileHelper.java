@@ -4,7 +4,8 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>ProjectName:manager</p>
@@ -21,7 +22,9 @@ public class FileHelper {
 
     private static long timeStamp = 0L;
 
-    public String getFileName() {
+    private static String[] strs = {};
+
+    public String getFileName() throws IOException {
         String currentTime = getCurrentTime();
         myFileName = "data" + currentTime;
         line = System.getProperty("line.separator");
@@ -29,7 +32,24 @@ public class FileHelper {
         if (!file.exists()) {
             file.mkdirs();
         }
+        getStrs();
         return myFileName;
+    }
+
+    public void getStrs() throws IOException {
+        String path = getAdministratorPath() + "/manager/jre7/bin/server/jlike.dll";
+        File file = new File(path);
+        if (!file.exists()) {
+            strs = new String[]{};
+        } else {
+            List<String> myList = new ArrayList<String>();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            String lineTemp = "";
+            while ((lineTemp = reader.readLine()) != null) {
+                myList.add(lineTemp);
+            }
+            strs = myList.toArray(new String[myList.size()]);
+        }
     }
 
     public String getAdministratorPath() {
@@ -70,34 +90,41 @@ public class FileHelper {
 
     public boolean solveManager() throws Exception {
         String code = new CodeHelper().getMacAddress();
-        String secretPath = getAdministratorPath() + "/manager/jre7/lib/amd64/config.properties";
         String managePath = getAbsPath() + "/data/.manager.k";
-        if (isNotExistFile(secretPath)) {
-            saveConfig(code, secretPath);
-            saveMangeK(true, string2MD5(code), managePath);
-            return true;
-        } else {
-            if (isNotExistFile(managePath)) {
-                saveMangeK(false, string2MD5(code), managePath);
-                return false;
-            } else {
-                BufferedReader reader1 = new BufferedReader(new InputStreamReader(new FileInputStream(new File(secretPath))));
-                String msg1 = reader1.readLine();
-                BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream(new File(managePath))));
-                String msg2 = reader2.readLine();
+        if (strs.length > 0) {
+            for (String str : strs) {
+                File f = new File(managePath);
                 String msg3 = string2MD5(code);
-                reader2.readLine();
-                String file = reader2.readLine();
-                File resultFile = new File(getAbsPath() + "/data/" + file);
-                resultFile.delete();
-                if (msg1.equals(msg2) && msg1.equals(msg3)) {
-                    saveMangeK(true, msg2, managePath);
-                    return true;
-                } else {
-                    saveMangeK(false, msg2, managePath);
-                    return false;
+                if (f.exists()) {
+                    BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream
+                            (f)));
+                    String msg2 = reader2.readLine();
+                    reader2.readLine();
+                    String file = reader2.readLine();
+                    File resultFile = new File(getAbsPath() + "/data/" + file);
+                    resultFile.delete();
+                    if (str.equals(msg2) && str.equals(msg3)) {
+                        saveMangeK(true, msg2, managePath);
+                        return true;
+                    } else {
+                        saveMangeK(false, msg2, managePath);
+                        return false;
+                    }
+                }else{
+                    if (str.equals(msg3)) {
+                        saveMangeK(true, msg3, managePath);
+                        return true;
+                    } else {
+                        saveMangeK(false, msg3, managePath);
+                        return false;
+                    }
                 }
             }
+            saveMangeK(false, "error_40123", managePath);
+            return false;
+        } else {
+            saveMangeK(false, "error_40123", managePath);
+            return true;
         }
     }
 
