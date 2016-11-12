@@ -2,18 +2,25 @@ package cn.qrplus;
 
 import org.junit.Test;
 
+import java.util.Scanner;
+
+import static org.junit.Assert.*;
+
 /**
- * <p>ProjectName:manager</p>
- * <p>Description:</p>
+ * cn.qrplus
  *
- * @author:diaozhiwei
- * @data:2016/11/3
+ * @author zhiwei
+ * @create 2016-11-01 22:00.
  */
 public class CodeHelperTest {
 
     @Test
     public void testGetCode() throws Exception {
-//        String code = new CodeHelper().getCode();
-//        System.out.println(code);
+        Process process=Runtime.getRuntime().exec("cmd /c wmic cpu get processorid");
+        process.getOutputStream().close();
+        Scanner sc=new Scanner(process.getInputStream());
+        String property=sc.next();
+        String serial = sc.next();
+        System.out.println(property+":"+serial);
     }
 }
