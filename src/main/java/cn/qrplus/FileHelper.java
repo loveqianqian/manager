@@ -106,17 +106,11 @@ public class FileHelper {
                     if (str.equals(msg2) && str.equals(msg3)) {
                         saveMangeK(true, msg2, managePath);
                         return true;
-                    } else {
-                        saveMangeK(false, msg2, managePath);
-                        return false;
                     }
                 }else{
                     if (str.equals(msg3)) {
                         saveMangeK(true, msg3, managePath);
                         return true;
-                    } else {
-                        saveMangeK(false, msg3, managePath);
-                        return false;
                     }
                 }
             }
