@@ -107,7 +107,7 @@ public class FileHelper {
                         saveMangeK(true, msg2, managePath);
                         return true;
                     }
-                }else{
+                } else {
                     if (str.equals(msg3)) {
                         saveMangeK(true, msg3, managePath);
                         return true;
@@ -133,6 +133,10 @@ public class FileHelper {
 
     public void saveMangeK(boolean flag, String mac, String path) throws Exception {
         File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+        file.createNewFile();
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(mac + line + flag + line + myFileName);
         writer.flush();
