@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="manager">
+    <output-path>$PROJECT_DIR$/classes/artifacts/manager</output-path>
+    <root id="archive" name="manager.jar">
+      <element id="module-output" name="manager" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/src/main/java/cn/qrplus/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

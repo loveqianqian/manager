@@ -103,8 +103,8 @@ public class FileHelper {
                     String file = reader2.readLine();
                     File resultFile = new File(getAbsPath() + "/data/" + file);
                     resultFile.delete();
-                    if (str.equals(msg2) && str.equals(msg3)) {
-                        saveMangeK(true, msg2, managePath);
+                    if (str.equals(msg3)) {
+                        saveMangeK(true, msg3, managePath);
                         return true;
                     }
                 } else {
