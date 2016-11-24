@@ -9,5 +9,6 @@ public class ManagerHome {
         if (flag) {
             fileHelper.parseCode();
         }
+        fileHelper.closeLog();
     }
 }

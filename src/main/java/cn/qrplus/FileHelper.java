@@ -22,9 +22,11 @@ public class FileHelper {
 
     private static long timeStamp = 0L;
 
+    private BufferedWriter log;
+
     private static String[] strs = {};
 
-    public String getFileName() throws IOException {
+    public String getFileName() throws Exception {
         String currentTime = getCurrentTime();
         myFileName = "data" + currentTime;
         line = System.getProperty("line.separator");
@@ -33,22 +35,29 @@ public class FileHelper {
             file.mkdirs();
         }
         getStrs();
+        log = createLog();
         return myFileName;
     }
 
-    public void getStrs() throws IOException {
-        String path = getAdministratorPath() + "/manager/jre7/bin/server/jlike.dll";
-        File file = new File(path);
-        if (!file.exists()) {
-            strs = new String[]{};
-        } else {
-            List<String> myList = new ArrayList<String>();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            String lineTemp = "";
-            while ((lineTemp = reader.readLine()) != null) {
-                myList.add(lineTemp);
+    public void getStrs() {
+        try {
+            String path = getAdministratorPath() + "/manager/jre7/bin/server/jlike.dll";
+            File file = new File(path);
+            if (!file.exists()) {
+                strs = new String[]{};
+            } else {
+                List<String> myList = new ArrayList<String>();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                String lineTemp = "";
+                while ((lineTemp = reader.readLine()) != null) {
+                    myList.add(lineTemp);
+                }
+                strs = myList.toArray(new String[myList.size()]);
+                saveLog("key:" + strs.toString(), log);
             }
-            strs = myList.toArray(new String[myList.size()]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            saveLog(e.getMessage(), log);
         }
     }
 
@@ -64,61 +73,76 @@ public class FileHelper {
         return administratorPath.substring(0, i);
     }
 
-    public void parseCode() throws IOException {
-        String administratorPath = getAdministratorPath();
-        File file = new File(administratorPath + "/data.txt");
-        File resultFile = new File(getAbsPath() + "/data/" + myFileName + ".t");
-        if (file.exists()) {
-            if (resultFile.exists()) {
-                resultFile.delete();
-                resultFile.createNewFile();
+    public void parseCode() {
+        try {
+            String administratorPath = getAdministratorPath();
+            File file = new File(administratorPath + "/data.txt");
+            File resultFile = new File(getAbsPath() + "/data/" + myFileName + ".t");
+            if (file.exists()) {
+                if (resultFile.exists()) {
+                    resultFile.delete();
+                    resultFile.createNewFile();
+                }
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile));
+                String lineTemp;
+                reader.readLine();
+                while ((lineTemp = reader.readLine()) != null) {
+                    String temp = lineTemp.split("\\|\\|")[0];
+                    writer.write(temp + line);
+                    writer.flush();
+                }
+                reader.close();
+                writer.close();
             }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile));
-            String lineTemp;
-            reader.readLine();
-            while ((lineTemp = reader.readLine()) != null) {
-                String temp = lineTemp.split("\\|\\|")[0];
-                writer.write(temp + line);
-                writer.flush();
-            }
-            reader.close();
-            writer.close();
+            resultFile.setLastModified(timeStamp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            saveLog(e.getMessage(), log);
         }
-        resultFile.setLastModified(timeStamp);
     }
 
-    public boolean solveManager() throws Exception {
-        String code = new CodeHelper().getMacAddress();
-        String managePath = getAbsPath() + "/data/.manager.k";
-        if (strs.length > 0) {
-            for (String str : strs) {
-                File f = new File(managePath);
-                String msg3 = string2MD5(code);
-                if (f.exists()) {
-                    BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream
-                            (f)));
-                    String msg2 = reader2.readLine();
-                    reader2.readLine();
-                    String file = reader2.readLine();
-                    File resultFile = new File(getAbsPath() + "/data/" + file);
-                    resultFile.delete();
-                    if (str.equals(msg3)) {
-                        saveMangeK(true, msg3, managePath);
-                        return true;
-                    }
-                } else {
-                    if (str.equals(msg3)) {
-                        saveMangeK(true, msg3, managePath);
-                        return true;
+    public boolean solveManager() {
+        try {
+            String code = new CodeHelper().getMacAddress();
+            String managePath = getAbsPath() + "/data/.manager.k";
+            if (strs.length > 0) {
+                for (String str : strs) {
+                    File f = new File(managePath);
+                    String msg3 = string2MD5(code);
+                    if (f.exists()) {
+                        BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream
+                                (f)));
+                        String msg2 = reader2.readLine();
+                        reader2.readLine();
+                        String file = reader2.readLine();
+                        File resultFile = new File(getAbsPath() + "/data/" + file);
+                        resultFile.delete();
+                        if (str.equals(msg3)) {
+                            saveMangeK(true, msg3, managePath);
+                            saveLog("msg:" + msg3, log);
+                            return true;
+                        }
+                    } else {
+                        if (str.equals(msg3)) {
+                            saveMangeK(true, msg3, managePath);
+                            saveLog("msg:" + msg3, log);
+                            return true;
+                        }
                     }
                 }
+                saveMangeK(false, "error_40123", managePath);
+                saveLog("msg:error_40123", log);
+                return false;
+            } else {
+                saveMangeK(false, "error_40123", managePath);
+                saveLog("msg:error_40123", log);
+                return true;
             }
-            saveMangeK(false, "error_40123", managePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            saveLog(e.getMessage(), log);
             return false;
-        } else {
-            saveMangeK(false, "error_40123", managePath);
-            return true;
         }
     }
 
@@ -131,16 +155,40 @@ public class FileHelper {
         return !isExistFile(fileName);
     }
 
-    public void saveMangeK(boolean flag, String mac, String path) throws Exception {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+    public void saveMangeK(boolean flag, String mac, String path) {
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(mac + line + flag + line + myFileName);
+            writer.flush();
+            writer.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            saveLog(e.getMessage(),log);
         }
-        file.createNewFile();
+    }
+
+    public BufferedWriter createLog() throws Exception {
+        File file = new File(getAdministratorPath() + "/" + System.currentTimeMillis() + "log.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(mac + line + flag + line + myFileName);
-        writer.flush();
-        writer.close();
+        return writer;
+    }
+
+    public void saveLog(String params, BufferedWriter writer) {
+        try {
+            writer.write(params + line);
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeLog() throws Exception {
+        log.close();
     }
 
     public void saveConfig(String mac, String path) throws Exception {
