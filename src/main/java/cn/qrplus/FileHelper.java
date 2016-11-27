@@ -105,9 +105,9 @@ public class FileHelper {
     public boolean solveManager() {
         try {
             String managePath = getAbsPath() + "/data/.manager.k";
-            String keyPath = getAbsPath() + "/data/key/.tell.k";
+            String keyPath = getAbsPath() + "key.tell";
             File keyFile = new File(keyPath);
-            String key = "";
+            String key;
             if (!keyFile.exists()) {
                 saveMangeK(false, "error_file_not_exists", managePath);
                 saveLog("msg:error_file_not_exists", log);
