@@ -104,29 +104,37 @@ public class FileHelper {
 
     public boolean solveManager() {
         try {
-            String code = new CodeHelper().getMacAddress();
             String managePath = getAbsPath() + "/data/.manager.k";
-            if (strs.length > 0) {
+            String keyPath = getAbsPath() + "/data/key/.tell.k";
+            File keyFile = new File(keyPath);
+            String key = "";
+            if (!keyFile.exists()) {
+                saveMangeK(false, "error_file_not_exists", managePath);
+                saveLog("msg:error_file_not_exists", log);
+                return false;
+            } else {
+                BufferedReader keyReader = new BufferedReader(new InputStreamReader(new FileInputStream(keyFile)));
+                key = keyReader.readLine();
+            }
+            if (strs.length > 0 && !key.equals("")) {
                 for (String str : strs) {
                     File f = new File(managePath);
-                    String msg3 = string2MD5(code);
                     if (f.exists()) {
-                        BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream
-                                (f)));
+                        BufferedReader reader2 = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
                         String msg2 = reader2.readLine();
                         reader2.readLine();
                         String file = reader2.readLine();
                         File resultFile = new File(getAbsPath() + "/data/" + file);
                         resultFile.delete();
-                        if (str.equals(msg3)) {
-                            saveMangeK(true, msg3, managePath);
-                            saveLog("msg:" + msg3, log);
+                        if (str.equals(key)) {
+                            saveMangeK(true, key, managePath);
+                            saveLog("msg:" + key, log);
                             return true;
                         }
                     } else {
-                        if (str.equals(msg3)) {
-                            saveMangeK(true, msg3, managePath);
-                            saveLog("msg:" + msg3, log);
+                        if (str.equals(key)) {
+                            saveMangeK(true, key, managePath);
+                            saveLog("msg:" + key, log);
                             return true;
                         }
                     }
@@ -166,9 +174,9 @@ public class FileHelper {
             writer.write(mac + line + flag + line + myFileName);
             writer.flush();
             writer.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            saveLog(e.getMessage(),log);
+            saveLog(e.getMessage(), log);
         }
     }
 
