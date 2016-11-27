@@ -105,7 +105,7 @@ public class FileHelper {
     public boolean solveManager() {
         try {
             String managePath = getAbsPath() + "/data/.manager.k";
-            String keyPath = getAbsPath() + "key.tell";
+            String keyPath = getAbsPath() + "/key.tell";
             File keyFile = new File(keyPath);
             String key;
             if (!keyFile.exists()) {
@@ -181,9 +181,8 @@ public class FileHelper {
     }
 
     public BufferedWriter createLog() throws Exception {
-        File file = new File(getAdministratorPath() + "/" + System.currentTimeMillis() + "log.txt");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        return writer;
+        File file = new File(getAdministratorPath() + "/log.txt");
+        return new BufferedWriter(new FileWriter(file));
     }
 
     public void saveLog(String params, BufferedWriter writer) {
